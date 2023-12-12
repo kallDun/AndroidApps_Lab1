@@ -12,7 +12,7 @@ import com.example.lab3.models.StoreEntity
 class ProductAdapter (private val storeEntitiesSet: Array<StoreEntity>): RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
         class ViewHolder(val binding: EntityCardBinding): RecyclerView.ViewHolder(binding.root) {
-            public fun bindCard(storeEntity: StoreEntity) {
+            public fun bindCard(storeEntity: StoreEntity, storeEntities: Array<StoreEntity>) {
                 if (storeEntity is Product) {
                     binding.cardView.backgroundTintList = binding.root.resources.getColorStateList(android.R.color.holo_blue_light)
                     binding.mainTitle.text = storeEntity.name
@@ -25,7 +25,12 @@ class ProductAdapter (private val storeEntitiesSet: Array<StoreEntity>): Recycle
                     binding.mainTitle.text = storeEntity.name
                     binding.subtitle.text = storeEntity.cv.toString()
                     binding.rightSubtitle.text = storeEntity.salary.toString() + " $"
-                    binding.rightBottom.visibility = View.GONE
+
+                    val productsLeft = storeEntities
+                        .filter { it is Product && it.staffId == storeEntity.id }
+                        .map { it as Product }
+                        .sumOf { it.quantity }
+                    binding.rightBottom.text = productsLeft.toString() + " products"
                 }
             }
         }
@@ -42,6 +47,6 @@ class ProductAdapter (private val storeEntitiesSet: Array<StoreEntity>): Recycle
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindCard(storeEntitiesSet[position])
+        holder.bindCard(storeEntitiesSet[position], storeEntitiesSet)
     }
 }
