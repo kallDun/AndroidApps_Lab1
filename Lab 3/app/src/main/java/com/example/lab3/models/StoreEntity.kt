@@ -1,6 +1,8 @@
 package com.example.lab3.models
 
+import androidx.room.PrimaryKey
+
 open class StoreEntity (
-    var id: Int = 0,
-    var name: String = ""
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0,
 )

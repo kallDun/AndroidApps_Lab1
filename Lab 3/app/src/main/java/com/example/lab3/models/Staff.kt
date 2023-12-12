@@ -1,8 +1,14 @@
 package com.example.lab3.models
 
-class Staff(
-    id : Int = 0,
-    name : String = "",
+import androidx.room.Entity
+
+@Entity(tableName = "staffs")
+data class Staff(
+    var name: String = "",
     var salary: Float = 0.0f,
     var cv: String = ""
-) : StoreEntity(id, name)
+) : StoreEntity(){
+
+    @Transient
+    var products: List<Product> = listOf()
+}
