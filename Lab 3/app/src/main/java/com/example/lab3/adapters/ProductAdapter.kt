@@ -14,7 +14,7 @@ class ProductAdapter (private val storeEntitiesSet: Array<StoreEntity>): Recycle
         class ViewHolder(val binding: EntityCardBinding): RecyclerView.ViewHolder(binding.root) {
             public fun bindCard(storeEntity: StoreEntity, storeEntities: Array<StoreEntity>) {
                 if (storeEntity is Product) {
-                    binding.cardView.backgroundTintList = binding.root.resources.getColorStateList(android.R.color.holo_blue_light)
+                    binding.cardView.backgroundTintList = binding.root.context.getColorStateList(android.R.color.holo_blue_light)
                     binding.mainTitle.text = storeEntity.name
                     binding.subtitle.text = storeEntity.description.toString()
                     binding.rightSubtitle.text = storeEntity.price.toString() + " $"
