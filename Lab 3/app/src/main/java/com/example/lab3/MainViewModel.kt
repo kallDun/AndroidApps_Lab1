@@ -23,6 +23,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch{
             repository.deleteAllStaffs();
             repository.deleteAllProducts();
+            repository.deleteAllActivities();
+
+            repository.loadFromApiAndSaveToDbActivities(5)
 
             val staff1_id = repository.insertEntity(Staff("John", 1000.0f, "CV1 a lot of text text"))
             val staff2_id = repository.insertEntity(Staff("Jack", 2000.0f, "CV2 text text"))

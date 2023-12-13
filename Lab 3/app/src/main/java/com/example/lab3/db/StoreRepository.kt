@@ -1,10 +1,18 @@
 package com.example.lab3.db
 
+import com.example.lab3.api.ActivityApi
+import com.example.lab3.api.ActivityRetrofitClient
+import com.example.lab3.models.ActivityEntity
 import com.example.lab3.models.Product
 import com.example.lab3.models.Staff
 import com.example.lab3.models.StoreEntity
 
-class StoreRepository(private val staffDao : StaffDao, private val productDao : ProductDao) {
+class StoreRepository(private val staffDao : StaffDao,
+                      private val productDao : ProductDao,
+                      private val activityDao : ActivityDao) {
+
+    private val activityRetrofitClient = ActivityRetrofitClient.getClient()
+    private val activityApi = activityRetrofitClient.create(ActivityApi::class.java)
 
     suspend fun getStaffs() : List<Staff> {
         val staffs = staffDao.getAll()
@@ -15,7 +23,7 @@ class StoreRepository(private val staffDao : StaffDao, private val productDao : 
     }
 
     suspend fun getProducts() : List<Product> {
-        var products = productDao.getAll()
+        val products = productDao.getAll()
         for (product in products) {
             if (product.idStaff != null)
                 product.staff = staffDao.getById(product.idStaff as Long)
@@ -23,10 +31,26 @@ class StoreRepository(private val staffDao : StaffDao, private val productDao : 
         return products
     }
 
+    suspend fun loadFromApiAndSaveToDbActivities(count: Int){
+        for (i in 1..count) {
+            val response = activityApi.getActivity()
+            if (!response.isSuccessful) {
+                throw Exception("Error: ${response.code()}")
+            }
+            insertEntity(response.body() as ActivityEntity)
+        }
+    }
+
+    suspend fun getActivities() : List<ActivityEntity> {
+        var activities = activityDao.getAll()
+        return activities
+    }
+
     suspend fun getStoreEntities() : List<StoreEntity> {
         val staffs = getStaffs()
         val products = getProducts()
-        return staffs.asSequence().plus(products).toList()
+        val activities = getActivities()
+        return activities.asSequence().plus(staffs).plus(products).toList()
     }
 
     suspend fun getSfaffById(staff1Id: Long): Staff {
@@ -41,6 +65,7 @@ class StoreRepository(private val staffDao : StaffDao, private val productDao : 
         val id = when (storeEntity) {
             is Staff -> staffDao.insert(storeEntity)
             is Product -> productDao.insert(storeEntity)
+            is ActivityEntity -> activityDao.insert(storeEntity)
             else -> throw IllegalArgumentException("Unknown entity")
         }
         return id
@@ -50,6 +75,7 @@ class StoreRepository(private val staffDao : StaffDao, private val productDao : 
         when (storeEntity) {
             is Staff -> staffDao.update(storeEntity)
             is Product -> productDao.update(storeEntity)
+            is ActivityEntity -> activityDao.update(storeEntity)
             else -> throw IllegalArgumentException("Unknown entity")
         }
     }
@@ -58,6 +84,7 @@ class StoreRepository(private val staffDao : StaffDao, private val productDao : 
         when (storeEntity) {
             is Staff -> staffDao.delete(storeEntity)
             is Product -> productDao.delete(storeEntity)
+            is ActivityEntity -> activityDao.delete(storeEntity)
             else -> throw IllegalArgumentException("Unknown entity")
         }
     }
@@ -68,5 +95,9 @@ class StoreRepository(private val staffDao : StaffDao, private val productDao : 
 
     suspend fun deleteAllProducts() {
         productDao.deleteAll()
+    }
+
+    suspend fun deleteAllActivities() {
+        activityDao.deleteAll()
     }
 }

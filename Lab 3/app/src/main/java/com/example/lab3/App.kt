@@ -7,5 +7,5 @@ import com.example.lab3.db.StoreRepository
 class App : Application() {
 
     val appDatabase by lazy { ApplicationDatabase.getDatabase(this) }
-    val repository by lazy { StoreRepository(appDatabase.staffDao(), appDatabase.productDao()) }
+    val repository by lazy { StoreRepository(appDatabase.staffDao(), appDatabase.productDao(), appDatabase.activityDao()) }
 }
